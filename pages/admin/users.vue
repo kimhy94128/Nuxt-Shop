@@ -1,25 +1,23 @@
 <template>
-  <section class="container">
-    <div class="category">
-      <a @click="changeCategory('하의')">하의</a>
-      <a @click="changeCategory('상의')">상의</a>
-    </div>
-    <ul>
-      <li v-for="cloth in clothes" :key="cloth['id']">
-        <nuxt-link :to="{path: '/cloth/' + cloth['id']}">
-          <img :src='"http://localhost:3000/uploads/" + cloth["img"]'>
-          <h3>{{ cloth['name'] }}</h3>
-          <h3>{{ cloth['price'] }}</h3>
-        </nuxt-link>
-      </li>
-    </ul>
+  <div class="container">
+    <table>
+      <tr>
+        <td>아이디</td>
+        <td>지갑</td>
+        <td>구분</td>
+      </tr>
+      <tr v-for="user in users" :key="user['id']">
+        <td>{{user['uid']}}</td>
+        <td>{{user['price']}}</td>
+        <td>{{user['status'] ? '일반유저': '관리자'}}</td>
+      </tr>
+    </table>
 
     <div class="pagination">
       <a href="#" @click="getPage(p)" v-for="p in pagination" :key="p">{{ p + 1 }}</a>
     </div>
-  </section>
+  </div>
 </template>
-
 <script>
 import axios from 'axios'
 function getPagination({currentPage, totalCount, limit}){
@@ -33,11 +31,11 @@ function getPagination({currentPage, totalCount, limit}){
   return pn
 }
 export default {
+    layout: 'admin',
   async asyncData(){
-    let data = await axios.get('http://localhost:3000/api/v1.0/clothes')
+    let data = await axios.get('http://localhost:3000/api/v1.0/admin/users')
     return {
-      category: '',
-      clothes: data.data.clothes,
+      users: data.data.users,
       totalCount: data.data.totalCount,
       limit: data.data.limit,
       currentPage: data.data.currentPage,
@@ -50,10 +48,10 @@ export default {
   },
   methods: {
     async getPage(page){
-      let url = `http://localhost:3000/api/v1.0/clothes?page=${page}&category=${this.category}`
+      let url = `http://localhost:3000/api/v1.0/admin/users?page=${page}`
       let data = await axios.get(url)
 
-      this.clothes = data.data.cloth
+      this.users = data.data.user
       this.totalCount = data.data.totalCount
       this.limit = data.data.limit
       this.currentPage = data.data.currentPage,
@@ -62,16 +60,12 @@ export default {
         totalCount: data.data.totalCount,
         limit: data.data.limit
       })
-    },
-    changeCategory(category){
-      this.category = category
-      this.getPage(0)
     }
   }
 }
 </script>
-
 <style>
-
+  td {
+    border: 1px solid #000;
+  }
 </style>
-

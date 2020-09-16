@@ -14,6 +14,14 @@ const nuxt = new Nuxt(config);
 const builder = new Builder(nuxt);
 
 builder.build();
+
+app.get('/uploads/:filename', (req, res) => {
+  let file = __dirname + '/uploads' + req.params.filename
+  fs.readFile(file, (err, data) => {
+    res.end(data);
+  })
+})
+
 app.use('/api/v1.0', routes);
 app.use(nuxt.render);
 

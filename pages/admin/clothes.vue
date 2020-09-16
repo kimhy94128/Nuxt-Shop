@@ -1,25 +1,23 @@
 <template>
-  <section class="container">
-    <div class="category">
-      <a @click="changeCategory('하의')">하의</a>
-      <a @click="changeCategory('상의')">상의</a>
-    </div>
-    <ul>
-      <li v-for="cloth in clothes" :key="cloth['id']">
-        <nuxt-link :to="{path: '/cloth/' + cloth['id']}">
-          <img :src='"http://localhost:3000/uploads/" + cloth["img"]'>
-          <h3>{{ cloth['name'] }}</h3>
-          <h3>{{ cloth['price'] }}</h3>
-        </nuxt-link>
-      </li>
-    </ul>
+  <div class="container">
+    <table>
+      <tr>
+        <td>카테고리</td>
+        <td>상품명</td>
+        <td>가격</td>
+      </tr>
+      <tr v-for="cloth in clothes" :key="cloth['id']">
+        <td>{{cloth['category']}}</td>
+        <td>{{cloth['name']}}</td>
+        <td>{{cloth['price']}}</td>
+      </tr>
+    </table>
 
     <div class="pagination">
       <a href="#" @click="getPage(p)" v-for="p in pagination" :key="p">{{ p + 1 }}</a>
     </div>
-  </section>
+  </div>
 </template>
-
 <script>
 import axios from 'axios'
 function getPagination({currentPage, totalCount, limit}){
@@ -33,10 +31,10 @@ function getPagination({currentPage, totalCount, limit}){
   return pn
 }
 export default {
+  layout: 'admin',
   async asyncData(){
-    let data = await axios.get('http://localhost:3000/api/v1.0/clothes')
+    let data = await axios.get('http://localhost:3000/api/v1.0/admin/clothes')
     return {
-      category: '',
       clothes: data.data.clothes,
       totalCount: data.data.totalCount,
       limit: data.data.limit,
@@ -50,7 +48,7 @@ export default {
   },
   methods: {
     async getPage(page){
-      let url = `http://localhost:3000/api/v1.0/clothes?page=${page}&category=${this.category}`
+      let url = `http://localhost:3000/api/v1.0/admin/clothes?page=${page}`
       let data = await axios.get(url)
 
       this.clothes = data.data.cloth
@@ -62,16 +60,12 @@ export default {
         totalCount: data.data.totalCount,
         limit: data.data.limit
       })
-    },
-    changeCategory(category){
-      this.category = category
-      this.getPage(0)
     }
   }
 }
 </script>
-
 <style>
-
+  td {
+    border: 1px solid #000;
+  }
 </style>
-
