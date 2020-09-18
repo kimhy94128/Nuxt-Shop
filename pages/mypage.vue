@@ -1,18 +1,14 @@
 <template>
   <div class="container">
+    <button type="button" @click="signout">로그아웃</button>
     <table>
-      <tr>
-        <td>카테고리</td>
-        <td>상품명</td>
-        <td>가격</td>
-      </tr>
-      <tr v-for="cloth in clothes" :key="cloth['id']">
-        <td>{{cloth['category']}}</td>
-        <td>{{cloth['name']}}</td>
-        <td>{{cloth['price']}}</td>
+      <tr v-for="purchase in purchases" :key="purchase.id">
+        <td>{{ purchase.uid }}</td>
+        <td>{{ purchase.name }}</td>
+        <td>{{ purchase.price }}원</td>
+        <td>{{ purchase.count }}개</td>
       </tr>
     </table>
-
     <div class="pagination">
       <a href="#" @click="getPage(p)" v-for="p in pagination" :key="p">{{ p + 1 }}</a>
     </div>
@@ -20,6 +16,7 @@
 </template>
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
 function getPagination({currentPage, totalCount, limit}){
   let pn = []
   let maxPage = Math.floor(totalCount/limit)
@@ -31,11 +28,10 @@ function getPagination({currentPage, totalCount, limit}){
   return pn
 }
 export default {
-  layout: 'admin',
   async asyncData(){
-    let data = await axios.get('http://localhost:3000/api/v1.0/admin/clothes')
+    let data = await axios.get('http://localhost:3000/api/v1.0/purchase')
     return {
-      clothes: data.data.cloth,
+      purchases: data.data.purchase,
       totalCount: data.data.totalCount,
       limit: data.data.limit,
       currentPage: data.data.currentPage,
@@ -48,10 +44,10 @@ export default {
   },
   methods: {
     async getPage(page){
-      let url = `http://localhost:3000/api/v1.0/admin/clothes?page=${page}`
+      let url = `http://localhost:3000/api/v1.0/purchase?page=${page}`
       let data = await axios.get(url)
 
-      this.clothes = data.data.cloth
+      this.purchases = data.data.purchase
       this.totalCount = data.data.totalCount
       this.limit = data.data.limit
       this.currentPage = data.data.currentPage,
@@ -60,12 +56,16 @@ export default {
         totalCount: data.data.totalCount,
         limit: data.data.limit
       })
-    }
+    },
+    async signout(){
+      let url = 'http://localhost:3000/api/v1.0/users/signout'
+      let data = await axios.put(url)
+      this.logout()
+      this.$nuxt.$router.replace({path: '/'})
+    },
+    ...mapMutations({
+      logout: 'user/logout'
+    })
   }
 }
 </script>
-<style>
-  td {
-    border: 1px solid #000;
-  }
-</style>

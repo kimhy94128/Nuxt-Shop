@@ -7,11 +7,11 @@
         <td>상품금액</td>
         <td>수량</td>
       </tr>
-      <tr v-for="purchase in purchases" :key="purchase['id']">
-        <td>{{purchase['user.uid']}}</td>
-        <td>{{purchase['clothe.name']}}</td>
-        <td>{{purchase['clothe.price']}}원</td>
-        <td>{{purchase['count']}}개</td>
+      <tr v-for="purchase in purchases" :key="purchase.id">
+        <td>{{ purchase.uid }}</td>
+        <td>{{ purchase.name }}</td>
+        <td>{{ purchase.price }}원</td>
+        <td>{{ purchase.count }}개</td>
       </tr>
     </table>
 

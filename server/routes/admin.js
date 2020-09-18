@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const file = require('../utils/fileUpload');
-
+const db = require('../db');
 const { clothes, users, purchase } = require('../models');
 
 router.get('/', (req, res) => {
@@ -11,6 +11,8 @@ router.get('/', (req, res) => {
 // 상품등록
 router.post('/clothes/registry', file.single('img'), (req, res) => {
   let {name, price, category, img} = req.body;
+
+
 
   clothes.create({
     name: name, price: price, category: category, img: img
@@ -24,14 +26,11 @@ router.get('/clothes', (req, res) => {
   let page = req.query.page || 0
   let limit = 5
 
-  clothes.findAndCountAll({
-    raw: true,
-    limit: limit,
-    offset: page * limit
-  }).then((result) => {
+  const sql = `SELECT * FROM clothes LIMIT ? OFFSET ?;`
+  db.query(sql, [limit, page * limit], (err, result) => {
     res.json({
-      totalCount: result.count,
-      cloth: result.rows,
+      totalCount: result.length,
+      cloth: result,
       limit: limit,
       currentPage: page
     })
@@ -43,14 +42,11 @@ router.get('/users', (req, res) => {
   let page = req.query.page || 0
   let limit = 5
 
-  users.findAndCountAll({
-    raw: true,
-    limit: limit,
-    offset: page * limit
-  }).then((result) => {
+  const sql = `SELECT * FROM users LIMIT ? OFFSET ?;`
+  db.query(sql, [limit, page * limit], (err, result) => {
     res.json({
-      totalCount: result.count,
-      user: result.rows,
+      totalCount: result.length,
+      user: result,
       limit: limit,
       currentPage: page
     })
@@ -61,19 +57,13 @@ router.get('/users', (req, res) => {
 router.get('/purchase', (req, res) => {
   let page = req.query.page || 0
   let limit = 5
-
-  purchase.findAndCountAll({
-    raw: true,
-    limit: limit,
-    offset: page * limit,
-    include: [
-      {model: clothes},
-      {model: users},
-    ]
-  }).then((result) => {
+  
+  const join = ' INNER JOIN users ON purchases.userId = users.id  INNER JOIN clothes ON purchases.clotheId = clothes.id'
+  const sql = `SELECT * FROM purchases ${join} LIMIT ? OFFSET ?;`
+  db.query(sql, [limit, page * limit], (err, result) => {
     res.json({
-      totalCount: result.count,
-      purchase: result.rows,
+      totalCount: result.length,
+      purchase: result,
       limit: limit,
       currentPage: page
     })

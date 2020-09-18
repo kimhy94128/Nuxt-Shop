@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
-const { clothes } = require('../models');
+const db = require('../db');
 
 router.get('/', (req, res) => {
   let page = req.query.page || 0
@@ -9,21 +8,26 @@ router.get('/', (req, res) => {
   let limit = 3
 
   if(category){
-    category = {category: category}
-  } else { category = {}}
+    category = `where category = '${category}'`
+  } else { category = ''; }
 
-  clothes.findAndCountAll({
-    raw: true,
-    limit: limit,
-    offset: page * limit,
-    where: category
-  }).then((result) => {
+  const sql = `SELECT * FROM clothes ${category} LIMIT ? OFFSET ?;`
+  db.query(sql, [limit, page * limit], (err, result) => {
     res.json({
-      totalCount: result.count,
-      cloth: result.rows,
+      totalCount: result.length,
+      cloth: result,
       limit: limit,
       currentPage: page
     })
+  })
+})
+
+router.get('/detail', (req, res) => {
+  let id = req.query.clothId
+  const sql = `SELECT * FROM clothes WHERE id = ?;`
+
+  db.query(sql, [id], (err, result) => {
+    res.json(result[0])
   })
 })
 
